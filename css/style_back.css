@@ -1,0 +1,291 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: url(img.jpg);
+    background-size: cover;
+    background-position: center;
+}
+
+.container {
+    background-color: rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 900px;
+    margin: 50px auto;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    color: #fff;
+    padding: 60px 40px;
+    backdrop-filter: blur(5px);
+}
+
+.container h2 {
+    font-size: 22px;
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: 400;
+}
+
+/* Linha de pesquisa com ícone de filtro ao lado */
+.search-filter-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+/* Input de pesquisa */
+.search-input {
+    flex: 1;
+    height: 50px;
+    border-radius: 40px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    padding: 0 20px;
+    font-size: 16px;
+    background-color: transparent;
+    color: #fff;
+    outline: none;
+}
+
+.search-input::placeholder {
+    color: #fff;
+}
+
+/* Container do ícone e dropdown */
+.area-filter-container {
+    position: relative;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+/* ÍCONE DE FILTRO (APLICADO APENAS AO ÍCONE NA LINHA DE PESQUISA) */
+/* Usa o seletor mais específico para o filtro e garante o estilo circular */
+.search-filter-row .area-filter-container i {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #fff;
+    background-color: transparent;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.search-filter-row .area-filter-container i:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff; 
+}
+
+
+/* Dropdown de seleção de áreas */
+#areaOptions {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    width: 300px;
+    max-height: 180px;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 15px;
+    padding: 10px 20px;
+    display: none;
+    z-index: 10;
+}
+
+#areaOptions.open {
+    display: block;
+}
+
+.area-option {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.area-option input[type="checkbox"] {
+    margin-right: 10px;
+    width: 18px;
+    height: 18px;
+}
+
+/* Tags das áreas selecionadas */
+#selectedAreasTags {
+    margin-top: 10px;
+    min-height: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tag {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+}
+
+.remove-tag {
+    margin-left: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.remove-tag:hover {
+    color: #ff4444;
+}
+
+/* Botões pequenos abaixo da pesquisa */
+.buttons-container {
+    display: flex;
+    gap: 10px;
+    margin-top: -25px;
+    margin-bottom: 40px;
+    justify-content: flex-end;
+}
+
+.btn-small {
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    border: none;
+    background-color: #fff;
+    color: #333;
+    transition: 0.3s;
+    width: auto;
+    min-width: 80px;
+}
+
+.btn-small:hover {
+    background-color: transparent;
+    color: #fff;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-clear {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Tabela */
+table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+table th,
+table td {
+    padding: 10px;
+    text-align: left;
+}
+
+table th {
+    background-color: #333;
+}
+
+table td {
+    border-bottom: 1px solid #fff;
+}
+
+/* Remove estilo antigo de links azuis */
+a.login {
+    color: inherit;
+    text-decoration: none;
+    background: none;
+    padding: 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* ESTILOS CORRIGIDOS PARA OS ÍCONES DE EDITAR/EXCLUIR NA TABELA */
+/* -------------------------------------------------------------------------- */
+
+/* 1. Container para alinhar os botões de ação */
+table td .area-filter-container {
+    display: flex;
+    gap: 10px; 
+    align-items: center;
+    justify-content: center; 
+}
+
+/* 2. Aplica o estilo circular e de borda ao LINK (<a>) */
+/* Isso garante que a área clicável seja o círculo completo. */
+table td .area-filter-container a {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    text-decoration: none; 
+    transition: 0.3s ease;
+    /* Resetando qualquer estilo indesejado que possa ter vindo de .area-filter-container i */
+    padding: 0; 
+    margin: 0;
+}
+
+/* 3. Estilo para o ícone (<i>) dentro do link de ação */
+/* Garante a cor e o tamanho do ícone, mas sem o formato circular */
+table td .area-filter-container a i {
+    color: #fff; 
+    font-size: 18px; 
+    /* Remove explicitamente o border/background que poderia ter vazado do seletor genérico */
+    border: none !important; 
+    background: none !important;
+    width: auto;
+    height: auto;
+}
+
+/* Efeito hover nos botões de Ação */
+table td .area-filter-container a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+
+/* Responsividade */
+@media (max-width: 600px) {
+    .search-filter-row {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    #btnToggleAreas {
+        width: 100%;
+    }
+
+    #areaOptions {
+        width: 100%;
+    }
+}

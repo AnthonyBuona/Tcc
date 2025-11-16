@@ -1,0 +1,246 @@
+/* Fonte e reset */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Fundo e layout */
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: url(img.jpg);
+  background-size: cover;
+  background-position: center;
+}
+
+.video-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  z-index: -1;
+}
+
+/* Container principal */
+.container {
+  background-color: rgba(0, 0, 0, 0.2); 
+  width: 30%; 
+  border: 2px solid rgba(255, 255, 255, 0.2); 
+  border-radius: 10px; 
+  color: #fff; 
+  padding: 80px 40px; 
+  backdrop-filter: blur(5px);
+}
+
+.container h1 {
+  font-size: 36px;
+  text-align: center;
+}
+
+.container h2 {
+  font-size: 20px;
+  text-align: center;
+  margin: -3% 3% 3%;
+  font-weight: 300;
+}
+
+/* Inputs padrão */
+.input-box {
+  position: relative;
+  width: 100%;
+  height: 50px;
+  margin: 20px 0;
+}
+
+.input-box input {
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 40px;
+  outline: none;
+  font-size: 16px;
+  color: #fff;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+}
+
+.input-box input::placeholder {
+  color: #fff;
+}
+
+/* Custom-select padrão */
+.custom-select-wrapper,
+.multi-select-wrapper {
+  position: relative;
+  width: 100%;
+  height: 50px;
+  margin: 20px 0;
+}
+
+.custom-select,
+.multi-select {
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 40px;
+  padding: 15px 20px;
+  line-height: 20px;
+  font-size: 16px;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.custom-select::after,
+.multi-select::after {
+  content: "▼";
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #fff;
+  font-size: 12px;
+}
+
+/* Dropdown de opções */
+.options,
+.options-container {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: rgba(0,0,0,0.4);
+  border-radius: 20px;
+  max-height: 150px;
+  overflow-y: auto;
+  display: none;
+  z-index: 10;
+}
+
+.option {
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.option:hover,
+.option.selected {
+  background: rgba(255,255,255,0.2);
+  font-weight: bold;
+}
+
+/* Tags selecionadas dentro da multi-select */
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.tag {
+  background: #0073b1;
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+}
+
+.remove-tag {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Botão de login */
+.login {
+  width: 100%;
+  height: 50px;
+  background-color: #fff;
+  border: none;
+  border-radius: 40px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #333;
+  font-weight: 600;
+  margin-top: 40px;
+  transition: 0.3s;
+}
+
+.login:hover {
+  background-color: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+/* Link de registro */
+.register-link {
+  font-size: 14px;
+  text-align: center;
+  margin: 20px 0 15px;
+}
+
+.register-link a {
+  text-decoration: none;
+  color: #fff;
+  font-weight: 600;
+}
+
+.register-link a:hover {
+  text-decoration: underline;
+}
+
+.header-with-back {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px; /* ajuste para espaçamento do h2 */
+}
+
+.btn-voltar {
+  position: absolute;
+  left: 0;
+  background-color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: 0.3s;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+}
+
+.btn-voltar:hover {
+  background-color: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  color: #fff;
+  box-shadow: none;
+}
+
+.header-with-back h1 {
+  font-size: 36px;
+  color: #fff;
+  margin: 0;
+}
