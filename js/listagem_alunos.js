@@ -1,13 +1,16 @@
 /**
  * Arquivo: js/listagem_alunos.js
  * Descrição: Listagem e edição de alunos com custom select para série e turma.
+ * Estratégia simplificada: sincronizar estado via objetos JS simples, sem dependências de cloning/listeners globais
  */
 
 let todasTurmas = [];
+let alunoEditState = { id_serie: null, id_turma: null };
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.debug('listagem_alunos.js: DOMContentLoaded fired');
 
-    // --- FUNÇÃO AUXILIAR: showToast seguro ---
+    // --- Função auxiliar: toast seguro ---
     function showToast(message, isError = false) {
         let toast = document.getElementById('feedback-toast');
         if (!toast) {
@@ -28,82 +31,107 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => { toast.style.display = 'none'; }, 3000);
     }
 
-    // --- FUNÇÃO AUXILIAR: Preencher Custom Select ---
-    function preencherCustomSelect(wrapperId, lista, idKey, nomeKey, valorSelecionado = null) {
+    // --- Função: sincronizar estado para hidden inputs e badge ---
+    function syncState() {
+        const serieInput = document.querySelector('#edit-wrapper-serie input[type="hidden"]');
+        const turmaInput = document.querySelector('#edit-wrapper-turma input[type="hidden"]');
+        const badge = document.getElementById('edit-aluno-debug');
+
+        if (serieInput) serieInput.value = alunoEditState.id_serie || '';
+        if (turmaInput) turmaInput.value = alunoEditState.id_turma || '';
+        if (badge) badge.textContent = `debug: id_serie=${alunoEditState.id_serie || '(vazio)'} | id_turma=${alunoEditState.id_turma || '(vazio)'}`;
+
+        console.debug('syncState updated:', alunoEditState);
+    }
+
+    // --- Função: preencher opções do select e wiring de cliques ---
+    function populateSelectOptions(wrapperId, lista, idKey, nomeKey, valorSelecionado = null) {
         const wrapper = document.getElementById(wrapperId);
         if (!wrapper) return;
 
-        const customSelect = wrapper.querySelector('.custom-select');
         const optionsDiv = wrapper.querySelector('.options');
-        const hiddenInput = wrapper.querySelector('input[type="hidden"]');
+        const customSelect = wrapper.querySelector('.custom-select');
+        if (!optionsDiv || !customSelect) return;
 
+        // Limpar opções anteriores
         optionsDiv.innerHTML = '';
         customSelect.textContent = 'Selecione uma opção';
-        hiddenInput.value = '';
-        optionsDiv.classList.remove('open');
 
         if (!Array.isArray(lista) || lista.length === 0) {
-            customSelect.textContent = (wrapperId === 'edit-wrapper-turma') ? 'Selecione uma Série primeiro' : 'Nenhuma opção disponível';
+            customSelect.textContent = wrapperId === 'edit-wrapper-turma' ? 'Selecione uma Série primeiro' : 'Nenhuma opção disponível';
             return;
         }
 
+        // Recriar opções
         lista.forEach(item => {
             const option = document.createElement('div');
             option.classList.add('option');
             option.setAttribute('data-value', item[idKey]);
+            option.setAttribute('data-label', item[nomeKey]);
             option.textContent = item[nomeKey];
             optionsDiv.appendChild(option);
-
-            if (valorSelecionado !== null && String(item[idKey]) === String(valorSelecionado)) {
-                customSelect.textContent = item[nomeKey];
-                hiddenInput.value = item[idKey];
-            }
         });
 
-        // Delegação de eventos
-        wrapper.removeEventListener('click', wrapper._delegatedClickListener);
-        wrapper._delegatedClickListener = function(e) {
-            if (e.target.classList.contains('option')) {
-                const clickedOption = e.target;
-                customSelect.textContent = clickedOption.textContent;
-                hiddenInput.value = clickedOption.getAttribute('data-value');
-                optionsDiv.classList.remove('open');
+        // Sincronizar opções com cliques diretos, sem delegação
+        const options = optionsDiv.querySelectorAll('.option');
+        options.forEach(opt => {
+            opt.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const val = this.getAttribute('data-value');
+                const label = this.getAttribute('data-label');
 
                 if (wrapperId === 'edit-wrapper-serie') {
-                    atualizarTurmasBaseadoNaSerie(hiddenInput.value, null);
+                    alunoEditState.id_serie = val;
+                    alunoEditState.id_turma = null; // reset turma when série changes
+                    customSelect.textContent = label;
+                    optionsDiv.style.display = 'none';
+                    syncState();
+                    updateTurmaOptions(null);
+                } else if (wrapperId === 'edit-wrapper-turma') {
+                    alunoEditState.id_turma = val;
+                    customSelect.textContent = label;
+                    optionsDiv.style.display = 'none';
+                    syncState();
+                }
+            });
+        });
+
+        // Abrir/fechar dropdown ao clicar no label
+        customSelect.removeEventListener('click', customSelect._clickListener || (() => {}));
+        customSelect._clickListener = function(e) {
+            e.stopPropagation();
+            optionsDiv.style.display = optionsDiv.style.display === 'block' ? 'none' : 'block';
+        };
+        customSelect.addEventListener('click', customSelect._clickListener);
+
+        // Fechar dropdown ao clicar fora
+        document.removeEventListener('click', window._alunoModalOutsideClickListener || (() => {}));
+        window._alunoModalOutsideClickListener = function(e) {
+            if (!wrapper.contains(e.target)) optionsDiv.style.display = 'none';
+        };
+        document.addEventListener('click', window._alunoModalOutsideClickListener);
+
+        // Se houver valorSelecionado, mostrar no label e syncState
+        if (valorSelecionado !== null) {
+            const found = lista.find(item => String(item[idKey]) === String(valorSelecionado));
+            if (found) {
+                customSelect.textContent = found[nomeKey];
+                if (wrapperId === 'edit-wrapper-serie') {
+                    alunoEditState.id_serie = String(valorSelecionado);
+                } else if (wrapperId === 'edit-wrapper-turma') {
+                    alunoEditState.id_turma = String(valorSelecionado);
                 }
             }
-        };
-        wrapper.addEventListener('click', wrapper._delegatedClickListener);
-
-        // Abrir/fechar
-        customSelect.removeEventListener('click', customSelect._openListener);
-        customSelect.removeEventListener('blur', customSelect._closeListener);
-
-        customSelect._openListener = (e) => {
-            e.stopPropagation();
-            optionsDiv.classList.toggle('open');
-        };
-        customSelect._closeListener = () => optionsDiv.classList.remove('open');
-
-        customSelect.addEventListener('click', customSelect._openListener);
-        customSelect.addEventListener('blur', customSelect._closeListener);
-
-        document.addEventListener('click', (e) => {
-            if (!wrapper.contains(e.target)) {
-                optionsDiv.classList.remove('open');
-            }
-        });
+        }
     }
 
-    // --- Filtrar turmas com base na série ---
-    function atualizarTurmasBaseadoNaSerie(idSerieSelecionada, idTurmaAluno = null) {
-        if (!idSerieSelecionada) return;
+    function updateTurmaOptions(idTurmaToSelect = null) {
+        if (!alunoEditState.id_serie) return;
 
-        const turmasFiltradas = todasTurmas
-            .filter(turma => turma && turma.id_serie != null && String(turma.id_serie) === String(idSerieSelecionada));
-
-        preencherCustomSelect('edit-wrapper-turma', turmasFiltradas, 'id_turma', 'nome_turma', idTurmaAluno);
+        const turmasFiltradas = todasTurmas.filter(
+            t => t && t.id_serie != null && String(t.id_serie) === String(alunoEditState.id_serie)
+        );
+        populateSelectOptions('edit-wrapper-turma', turmasFiltradas, 'id_turma', 'nome_turma', idTurmaToSelect);
     }
 
     // --- Modal de Edição de Aluno ---
@@ -115,6 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (modalAluno) {
             modalAluno.style.display = 'none';
             if (editFormAluno) editFormAluno.reset();
+            alunoEditState = { id_serie: null, id_turma: null };
         }
     }
 
@@ -137,12 +166,31 @@ document.addEventListener('DOMContentLoaded', () => {
             const aluno = alunoData.aluno;
             todasTurmas = turmasData.lista;
 
+            // Reset state
+            alunoEditState = { id_serie: aluno.id_serie, id_turma: aluno.id_turma };
+
+            // Preencher form
             document.getElementById('edit-id_aluno').value = aluno.id_aluno;
             document.getElementById('edit-nome-aluno').value = aluno.nome;
             document.getElementById('edit-cpf-aluno').value = aluno.cpf;
 
-            preencherCustomSelect('edit-wrapper-serie', seriesData.lista, 'id_serie', 'nome_serie', aluno.id_serie);
-            atualizarTurmasBaseadoNaSerie(aluno.id_serie, aluno.id_turma);
+            // Preencher séries e turmas
+            populateSelectOptions('edit-wrapper-serie', seriesData.lista, 'id_serie', 'nome_serie', aluno.id_serie);
+            updateTurmaOptions(aluno.id_turma);
+            syncState();
+
+            // Debug badge
+            try {
+                if (!document.getElementById('edit-aluno-debug')) {
+                    const badge = document.createElement('div');
+                    badge.id = 'edit-aluno-debug';
+                    badge.style.cssText = 'position:relative;margin-top:10px;padding:8px;background:#f1f1f1;border-radius:6px;font-size:13px;color:#333;';
+                    document.querySelector('#editModalAluno .modal-content').appendChild(badge);
+                }
+                syncState();
+            } catch (e) {
+                console.debug('badge init failed', e);
+            }
 
         } catch (err) {
             console.error(err);
@@ -169,7 +217,23 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
 
             const formData = new FormData(editFormAluno);
+            // Garantir que os valores do estado JS estão no formData
+            formData.set('id_serie', alunoEditState.id_serie || '');
+            formData.set('id_turma', alunoEditState.id_turma || '');
+
             const id = formData.get('id_aluno');
+            
+            // 💡 CORREÇÃO: Captura o nome da turma que está visível no dropdown do modal
+            const nomeTurmaSelecionadaElement = document.querySelector('#edit-wrapper-turma .custom-select');
+            const nomeTurmaSelecionada = nomeTurmaSelecionadaElement ? nomeTurmaSelecionadaElement.textContent : '';
+
+            console.debug('Submitting form with:', {
+                id_aluno: formData.get('id_aluno'),
+                id_serie: formData.get('id_serie'),
+                id_turma: formData.get('id_turma'),
+                nome: formData.get('nome'),
+                nome_turma_display: nomeTurmaSelecionada 
+            });
 
             try {
                 const resp = await fetch('includes/update_aluno.php', {
@@ -186,8 +250,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     const linha = document.querySelector(`tr[data-id="${id}"]`);
                     if (linha) {
-                        linha.children[1].textContent = formData.get('nome'); // Nome
-                        linha.children[3].textContent = formData.get('id_turma'); // ID Turma
+                        linha.children[1].textContent = formData.get('nome'); // Coluna 2: Nome
+                        
+                        // Coluna 4 (índice 3): Atualiza para exibir ID + Nome da Turma
+                        linha.children[3].textContent = `${formData.get('id_turma')} (${nomeTurmaSelecionada})`; 
                     }
 
                 } else {
@@ -200,5 +266,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // Expose for debugging
+    window.alunoEditState = alunoEditState;
+    window.syncState = syncState;
+    console.debug('listagem_alunos.js: initialized');
 
 });

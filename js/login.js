@@ -6,7 +6,7 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
     const mensagemDiv = document.getElementById('mensagemLogin');
     mensagemDiv.style.display = 'none';
 
-    // ATENÇÃO: Chamada para o NOVO arquivo PHP
+    // *** A CORREÇÃO ESTÁ AQUI: O caminho inclui 'includes/' ***
     fetch('includes/processar_login.php', { 
         method: 'POST',
         body: formData

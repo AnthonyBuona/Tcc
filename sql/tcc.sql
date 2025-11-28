@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 14-Nov-2025 às 15:47
+-- Tempo de geração: 19-Nov-2025 às 15:53
 -- Versão do servidor: 10.4.21-MariaDB
 -- versão do PHP: 7.4.23
 
@@ -549,7 +549,7 @@ CREATE TABLE `horario` (
   `id_periodo` int(11) NOT NULL,
   `id_disc` int(11) NOT NULL,
   `id_prof` int(11) NOT NULL,
-  `id_sala` int(11) NOT NULL,
+  `id_sala` int(11) DEFAULT NULL,
   `dia` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -1062,7 +1062,7 @@ ALTER TABLE `professor`
 -- AUTO_INCREMENT de tabela `relacionamento_disciplina`
 --
 ALTER TABLE `relacionamento_disciplina`
-  MODIFY `id_relacionamento` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=224;
+  MODIFY `id_relacionamento` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=335;
 
 --
 -- AUTO_INCREMENT de tabela `sala`

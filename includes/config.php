@@ -13,7 +13,9 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
 
 // Não envia JSON automaticamente em erro de conexão
 if (!$conexao) {
-    // Apenas retorna falso para o chamador tratar
-    die('Erro na conexão com o banco: '.mysqli_connect_error());
+    http_response_code(500);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['success' => false, 'error' => 'Database connection failed: ' . mysqli_connect_error()]);
+    exit;
 }
 ?>

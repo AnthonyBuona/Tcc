@@ -149,25 +149,27 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.btn-excluir-ajax').forEach(btn => {
         btn.addEventListener('click', function() {
             const id = this.getAttribute('data-id');
-            const nome = this.closest('tr').querySelector('.nome').textContent;
+            const tipo = this.getAttribute('data-tipo') || 'professor';
+            const nomeEl = this.closest('tr').querySelector('.nome');
+            const nome = nomeEl ? nomeEl.textContent : (tipo + ' ' + id);
 
-            if (confirm(`Tem certeza que deseja EXCLUIR o professor ${nome} (ID: ${id})?`)) {
-                fetch('includes/excluir_usuario.php', {
+            if (confirm(`Tem certeza que deseja EXCLUIR o ${tipo} ${nome} (ID: ${id})?`)) {
+                fetch('includes/delete_usuario.php', {
                     method: 'POST',
-                    body: new URLSearchParams({ id: id, tipo: 'professor' }).toString(),
+                    body: new URLSearchParams({ id: id, tipo: tipo }).toString(),
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert(`Professor ${nome} excluído com sucesso.`);
-                        const linha = document.querySelector(`tr[data-id="${id}"]`);
+                        alert(data.message || (`${tipo} ${nome} excluído com sucesso.`));
+                        const linha = this.closest('tr');
                         if (linha) linha.remove();
                     } else {
-                        alert('Erro ao excluir: ' + (data.error || 'Erro desconhecido.'));
+                        alert('Erro ao excluir: ' + (data.error || data.message || 'Erro desconhecido.'));
                     }
                 })
-                .catch(() => alert('Erro na comunicação com o servidor.'));
+                .catch((err) => { console.error(err); alert('Erro na comunicação com o servidor.'); });
             }
         });
     });
@@ -179,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const nome = this.closest('tr').querySelector('.nome').textContent;
 
             if (confirm(`Confirmar a APROVAÇÃO do professor ${nome} (ID: ${id})?`)) {
-                fetch('processa_aprovacao.php', {
+                fetch('includes/processar_usuario.php', {
                     method: 'POST',
                     body: new URLSearchParams({ id: id, tipo: tipo, acao: 'aprovar' }).toString(),
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' }

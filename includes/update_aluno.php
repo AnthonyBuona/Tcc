@@ -2,9 +2,15 @@
 // Arquivo: includes/update_aluno.php
 // Processa o UPDATE dos dados do aluno no banco de dados.
 
+ob_start(); // Start buffering FIRST
 session_start();
-include 'config.php'; 
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
+
+// Include config but suppress any output
+include 'config.php';
+
+// Clear any buffered output
+ob_end_clean();
 
 $response = ['success' => false, 'error' => ''];
 
@@ -16,8 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_serie = filter_input(INPUT_POST, 'id_serie', FILTER_VALIDATE_INT);
     $id_turma = filter_input(INPUT_POST, 'id_turma', FILTER_VALIDATE_INT);
 
-    // Validação básica
-    if (!$id_aluno || empty($nome) || $id_serie === null || $id_turma === null) {
+    // Validação básica (id_serie e id_turma podem ser 0, então verifica false especificamente)
+    if (!$id_aluno || empty($nome) || $id_serie === false || $id_turma === false) {
         $response['error'] = "Todos os campos obrigatórios (Nome, Série, Turma) devem ser preenchidos.";
         echo json_encode($response);
         exit;
@@ -35,8 +41,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Verifica se a linha foi afetada para dar um feedback mais preciso
             if (mysqli_stmt_affected_rows($stmt) > 0) {
                 $response['success'] = true;
+                $response['message'] = 'Aluno atualizado com sucesso!';
             } else {
-                $response['success'] = true; // Se não houver alteração, ainda é um sucesso
+                $response['success'] = true;
                 $response['message'] = "Nenhuma alteração detectada. Aluno não modificado.";
             }
         } else {

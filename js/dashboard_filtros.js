@@ -17,16 +17,35 @@ function mostrarSecao(id){
 // 2. Função de Processamento de Usuário (Simulação de Aprovação/Reprovação)
 function processarUsuario(id, tipo, acao){
     if(!confirm(`Confirma ${acao} do ${tipo} ${id}?`)) return;
-    
-    // Simulação: remover a linha da tabela após a confirmação
-    const linha = document.getElementById(`linha-${tipo}-${id}`);
-    if (linha) {
-        linha.remove();
-        alert(`Ação '${acao}' para ${tipo} ${id} processada. (Você precisa implementar a chamada AJAX real no backend)`);
-        // Lembrete: Você deve implementar aqui a chamada AJAX real para um arquivo PHP (ex: processar_aprovacao.php)
-    } else {
-        alert(`Ação '${acao}' para ${tipo} ${id} processada. (Linha não encontrada)`);
-    }
+
+    // Faz chamada AJAX para o backend responsável (includes/processar_usuario.php)
+    fetch('includes/processar_usuario.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ id: id, tipo: tipo, acao: acao }).toString()
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Se aprovou, atualiza o status na linha; se reprovou, remove a linha
+            const linha = document.getElementById(`linha-${tipo}-${id}`);
+            if (acao === 'aprovar') {
+                if (linha) {
+                    const statusCell = linha.querySelector('td:nth-child(6)') || linha.querySelector('td:nth-child(5)');
+                    if (statusCell) statusCell.innerHTML = '<span class="status-aprovado">Aprovado</span>';
+                }
+            } else if (acao === 'reprovar') {
+                if (linha) linha.remove();
+            }
+            alert(data.message || 'Ação realizada com sucesso.');
+        } else {
+            alert(data.message || data.error || 'Falha ao processar a ação.');
+        }
+    })
+    .catch(err => {
+        console.error('Erro ao comunicar com o servidor:', err);
+        alert('Erro de comunicação com o servidor. Veja console para detalhes.');
+    });
 }
 
 // 3. --- Filtros Professores (Atualizado para funcionar com a pesquisa e filtro) ---

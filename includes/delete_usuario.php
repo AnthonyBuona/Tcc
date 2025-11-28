@@ -9,6 +9,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'], $_POST['tipo'])
     $tipo = strtolower(trim($_POST['tipo']));
     $tabela = '';
     $campo_id = '';
+    
+    // Define a tabela e o campo ID com base no tipo
     if ($tipo === 'professor') {
         $tabela = 'professor';
         $campo_id = 'id_prof';
@@ -20,23 +22,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'], $_POST['tipo'])
         mysqli_close($conexao);
         exit;
     }
+    
     if ($id <= 0) {
         echo json_encode(['success' => false, 'error' => 'ID inválido']);
         mysqli_close($conexao);
         exit;
     }
+    
+    // Prepara a query de exclusão
     $sql = "DELETE FROM $tabela WHERE $campo_id = ?";
     if ($stmt = mysqli_prepare($conexao, $sql)) {
+        
         mysqli_stmt_bind_param($stmt, "i", $id);
-        mysqli_stmt_execute($stmt);
-        if (mysqli_stmt_affected_rows($stmt) > 0) {
-            echo json_encode(['success' => true, 'message' => ucfirst($tipo) . ' excluído com sucesso.']);
+        
+        // Executa a exclusão
+        if (mysqli_stmt_execute($stmt)) {
+            if (mysqli_stmt_affected_rows($stmt) > 0) {
+                echo json_encode(['success' => true, 'message' => ucfirst($tipo) . ' excluído com sucesso.']);
+            } else {
+                echo json_encode(['success' => false, 'error' => ucfirst($tipo) . ' não encontrado para o ID fornecido.']);
+            }
         } else {
-            echo json_encode(['success' => false, 'error' => ucfirst($tipo) . ' não encontrado para o ID fornecido.']);
+            $error = mysqli_error($conexao);
+            
+            // TRATAMENTO DE ERRO COMUM: Chave Estrangeira
+            if (strpos($error, 'foreign key constraint') !== false) {
+                 $msg_erro = ucfirst($tipo) . ' não pode ser excluído. Ele ainda está vinculado a outras tabelas (ex: Turmas). Remova todos os vínculos primeiro.';
+                 echo json_encode(['success' => false, 'error' => $msg_erro]);
+            } else {
+                 echo json_encode(['success' => false, 'error' => 'Erro ao excluir do banco de dados: ' . $error]);
+            }
         }
+        
         mysqli_stmt_close($stmt);
+        
     } else {
-        echo json_encode(['success' => false, 'error' => 'Erro ao excluir do banco de dados: ' . mysqli_error($conexao)]);
+        echo json_encode(['success' => false, 'error' => 'Erro ao preparar a exclusão no banco de dados: ' . mysqli_error($conexao)]);
     }
 } else {
     echo json_encode(['success' => false, 'error' => 'Requisição inválida: ID ou tipo ausente.']);

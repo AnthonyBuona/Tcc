@@ -1,5 +1,86 @@
 <?php
+// =================================================================
+// 1. LÓGICA PHP DE AUTENTICAÇÃO E REDIRECIONAMENTO (DEVE ESTAR NO TOPO)
+// =================================================================
+session_start();
 
+// Inclui a conexão com o banco de dados (certifique-se de que 'includes/config.php' existe)
+include 'includes/config.php'; 
+
+$msg = "";
+
+// 2. VERIFICAÇÃO DE USUÁRIO JÁ LOGADO (Redirecionamento Preventivo)
+// Se o usuário já tem uma sessão ativa, é enviado diretamente para o dashboard
+if (isset($_SESSION['id_aluno'])) {
+    header('Location:dashboard_aluno.php');
+    exit();
+}
+if (isset($_SESSION['id_prof'])) {
+    header('Location:dashboard_professor.php');
+    exit();
+}
+
+// 3. PROCESSAMENTO DO LOGIN (quando o formulário da Tela 2 é enviado via POST)
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['cpf']) && isset($_POST['senha'])) {
+    
+    // Filtra e prepara os dados
+    $cpf = trim($_POST['cpf']);
+    $senha = $_POST['senha'];
+
+    // 3a. Tenta logar como Aluno
+    $sql_aluno = "SELECT id_aluno, senha FROM aluno WHERE cpf = ?";
+    $stmt_aluno = mysqli_prepare($conexao, $sql_aluno);
+    
+    if ($stmt_aluno) {
+        mysqli_stmt_bind_param($stmt_aluno, "s", $cpf);
+        mysqli_stmt_execute($stmt_aluno);
+        $result_aluno = mysqli_stmt_get_result($stmt_aluno);
+
+        if ($row_aluno = mysqli_fetch_assoc($result_aluno)) {
+            // Verifica a senha (USANDO password_verify)
+            if (password_verify($senha, $row_aluno['senha'])) {
+                // SUCESSO DO ALUNO: Define a sessão e REDIRECIONA
+                $_SESSION['id_aluno'] = $row_aluno['id_aluno'];
+                mysqli_stmt_close($stmt_aluno);
+                mysqli_close($conexao);
+                header('Location:dashboard_aluno.php'); // 🎯 REDIRECIONAMENTO DO ALUNO
+                exit(); 
+            }
+        }
+        mysqli_stmt_close($stmt_aluno);
+    }
+
+    // 3b. Tenta logar como Professor
+    $sql_prof = "SELECT id_prof, senha FROM professor WHERE cpf = ?";
+    $stmt_prof = mysqli_prepare($conexao, $sql_prof);
+
+    if ($stmt_prof) {
+        mysqli_stmt_bind_param($stmt_prof, "s", $cpf);
+        mysqli_stmt_execute($stmt_prof);
+        $result_prof = mysqli_stmt_get_result($stmt_prof);
+
+        if ($row_prof = mysqli_fetch_assoc($result_prof)) {
+            // Verifica a senha (USANDO password_verify)
+            if (password_verify($senha, $row_prof['senha'])) {
+                // SUCESSO DO PROFESSOR: Define a sessão e REDIRECIONA
+                $_SESSION['id_prof'] = $row_prof['id_prof'];
+                mysqli_stmt_close($stmt_prof);
+                mysqli_close($conexao);
+                header('Location:dashboard_professor.php'); // 🎯 REDIRECIONAMENTO DO PROFESSOR
+                exit(); 
+            }
+        }
+        mysqli_stmt_close($stmt_prof);
+    }
+    
+    // Se chegou aqui, o login falhou
+    $msg = "CPF ou senha incorretos.";
+}
+
+// 4. Fechamento da conexão (se não foi fechada no redirecionamento)
+if (isset($conexao)) {
+    mysqli_close($conexao);
+}
 ?>
 
 <!DOCTYPE html>
@@ -14,9 +95,7 @@
 
 <?php
 // Exibir mensagem de sucesso/erro
-if(isset($msg)){
-    echo "<p style='color:green; text-align:center;'>$msg</p>";
-}
+echo "<p style='color:green; text-align:center;'>$msg</p>";
 ?>
 
 <video autoplay muted loop class="video-bg">
@@ -66,10 +145,7 @@ if(isset($msg)){
     <!-- Botão de login -->
     <button type="submit" class="login">Login</button>
 
-    <!-- Links depois do botão -->
-    <div class="register-link">
-      <a href="#" id="esqueciSenhaLink">Esqueci a senha</a>
-    </div>
+    
     <div class="register-link">
       <p>Não tem conta? <a href="#" id="voltarBtn">Cadastre-se</a></p>
     </div>

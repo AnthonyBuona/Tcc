@@ -21,7 +21,6 @@ $sql_pendentes_unificado = "
         id_aluno AS id, 
         nome, 
         cpf, 
-        email,
         'aluno' AS tipo_acesso, 
         id_turma AS detalhe 
     FROM aluno 
@@ -33,7 +32,6 @@ $sql_pendentes_unificado = "
         id_prof AS id, 
         nome, 
         cpf, 
-        email,
         'professor' AS tipo_acesso, 
         areas AS detalhe 
     FROM professor 
@@ -56,6 +54,16 @@ $sql_alunos = "SELECT id_aluno, nome, cpf, id_turma, status_aprovacao FROM aluno
 $result_alunos = mysqli_query($conexao, $sql_alunos);
 $alunos = mysqli_fetch_all($result_alunos, MYSQLI_ASSOC);
 mysqli_free_result($result_alunos);
+
+// --- Contagem de alunos por turma (para exibir "Total Alunos") ---
+$contagem_turmas = [];
+foreach ($alunos as $a) {
+    $tid = $a['id_turma'] ?? null;
+    if ($tid !== null && $tid !== '') {
+        if (!isset($contagem_turmas[$tid])) $contagem_turmas[$tid] = 0;
+        $contagem_turmas[$tid]++;
+    }
+}
 
 
 // Pré-processamento das áreas dos professores para os filtros
@@ -84,7 +92,7 @@ $areas_professores = array_unique(array_map('trim', $areas_professores));
         <div class="logo" onclick="mostrarSecao('dashboard-home')" style="cursor: pointer;">PlanIt 🦉</div>
         <div class="profile">
             <span>Administrador</span>
-            <img src="avatar.png" alt="Avatar" />
+            <img src="img/avatar.jpg" alt="Avatar" />
         </div>
     </header>
 
@@ -97,6 +105,12 @@ $areas_professores = array_unique(array_map('trim', $areas_professores));
                     <li><a href="#listar-professores" onclick="mostrarSecao('professores-section'); return false;">Listar Professores</a></li>
                     <li><a href="#listar-alunos" onclick="mostrarSecao('alunos-section'); return false;">Listar Alunos</a></li>
                     <li><a href="#listar-turmas" onclick="mostrarSecao('turmas-section'); return false;">Listar Turmas</a></li>
+                </ul>
+
+                <li class="menu-title">Gerenciamento de Condições</li>
+                <ul class="submenu">
+                    <li><a href="">Restrição Porfessor</a></li>
+                    <li><a href="">Carga Horária</a></li>
                 </ul>
 
                 <li class="menu-title">Gerenciamento de Disciplinas</li>
@@ -425,12 +439,16 @@ $areas_professores = array_unique(array_map('trim', $areas_professores));
                     </thead>
                     <tbody>
                     <?php foreach($turmas as $t):
-                        preg_match('/(\d+)°/',$t['nome_turma'],$m); $ano=$m[1]??''; 
-                        $curso=''; 
-                        if(stripos($t['nome_turma'],'mecatr')!==false) $curso='Mecatrônica';
-                        elseif(stripos($t['nome_turma'],'desenvolvimento')!==false || stripos($t['nome_turma'],'ds')!==false) $curso='DS';
-                        elseif(stripos($t['nome_turma'],'linguagens')!==false) $curso='Linguagens';
-                    ?>
+    preg_match('/(\d+)°/',$t['nome_turma'],$m); $ano=$m[1]??''; 
+    $curso=''; 
+    
+    // As duas primeiras linhas permanecem iguais
+    if(stripos($t['nome_turma'],'mecatr')!==false) $curso='Mecatrônica';
+    elseif(stripos($t['nome_turma'],'desenvolvimento')!==false || stripos($t['nome_turma'],'ds')!==false) $curso='DS';
+    
+    // LINHA CORRIGIDA: Agora checa por 'linguagens' OU 'ling'
+    elseif(stripos($t['nome_turma'],'linguagens')!==false || stripos($t['nome_turma'],'ling')!==false) $curso='Linguagens';
+?>
                         <tr data-ano="<?= $ano ?>" data-curso="<?= $curso ?>">
                             <td><?= htmlspecialchars($t['id_turma']) ?></td>
                             <td><?= htmlspecialchars($t['nome_turma']) ?></td>
@@ -438,7 +456,7 @@ $areas_professores = array_unique(array_map('trim', $areas_professores));
                             <td><?= htmlspecialchars($t['capacidade']) ?></td>
                             <td><?= htmlspecialchars($ano) ?></td>
                             <td><?= htmlspecialchars($curso) ?></td>
-                            <td><?= htmlspecialchars($t['total_alunos']) ?></td>
+                            <td><?= htmlspecialchars($contagem_turmas[$t['id_turma']] ?? 0) ?></td>
                             </tr>
                     <?php endforeach; ?>
                     </tbody>
@@ -464,9 +482,17 @@ $areas_professores = array_unique(array_map('trim', $areas_professores));
             <div class="multi-select-wrapper">
                 <div class="multi-select" id="multi-select-display">Área(s) que você ensina...</div>
                 <div class="options" id="multi-select-options">
-                    <div class="option" data-value="Itinerário Formativo">Itinerário Formativo</div>
-                    <div class="option" data-value="Ciências Humanas e Sociais">Ciências Humanas e Sociais</div>
-                    <div class="option" data-value="Moda e Estética">Moda e Estética</div>
+                    <div class="option" data-value="Humanas">Ciências Humanas e Sociais</div>
+                    <div class="option" data-value="Exatas">Ciências Exatas</div>
+                    <div class="option" data-value="Biologicas">Ciências Biológicas</div>
+                    <div class="option" data-value="Linguagens">Linguagens e Comunicação</div>
+                    <div class="option" data-value="Informatica">Informática / TI</div>
+                    <div class="option" data-value="Administracao">Administração e Negócios</div>
+                    <div class="option" data-value="Saude">Saúde</div>
+                    <div class="option" data-value="Engenharia">Engenharia e Tecnologia</div>
+                    <div class="option" data-value="Design">Design e Comunicação Visual</div>
+                    <div class="option" data-value="MeioAmbiente">Meio Ambiente e Agroindústria</div>
+                    <div class="option" data-value="Moda">Moda e Estética</div>
                 </div>
                 <input type="hidden" name="areas" id="edit-areas" /> 
             </div>
@@ -524,7 +550,6 @@ $areas_professores = array_unique(array_map('trim', $areas_professores));
     <script src="js/listagem_alunos.js"></script> 
     <script src="js/listagem_professores.js"></script> 
     <script src="js/dashboard.js"></script> 
-    
     <script src="js/dashboard_filtros.js"></script> 
     
 </body>

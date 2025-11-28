@@ -88,7 +88,7 @@ if ($usuario) {
         $result_notif = mysqli_stmt_get_result($stmt_notif);
         $total_notif = mysqli_fetch_assoc($result_notif)['total'];
         
-        $redirecionar_para = ($tipo_usuario === 'aluno') ? 'aluno.php' : 'professor.php';
+        $redirecionar_para = ($tipo_usuario === 'aluno') ? 'dashboard_aluno.php' : 'professor.php';
 
         // Retorna sucesso para o JavaScript, incluindo a contagem de notificação
         echo json_encode([
