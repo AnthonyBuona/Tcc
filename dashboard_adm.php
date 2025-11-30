@@ -121,7 +121,7 @@ $areas_professores = array_unique(array_map('trim', $areas_professores));
 
                 <li class="menu-title">Alocação de Horários</li>
                 <ul class="submenu">
-                    <li><a href="alocacao.php">Atribuir Aulas</a></li>
+                    <li><a href="#" onclick="mostrarSecao('atribuicao-section'); carregarAtribuicaoAulas(); return false;">Atribuir Aulas</a></li>
                     <li><a href="validar_conflitos.php">Validar Conflitos</a></li>
                     <li><a href="grade_horarios.php">Exibir Grade de Horários</a></li>
                 </ul>
@@ -439,16 +439,16 @@ $areas_professores = array_unique(array_map('trim', $areas_professores));
                     </thead>
                     <tbody>
                     <?php foreach($turmas as $t):
-    preg_match('/(\d+)°/',$t['nome_turma'],$m); $ano=$m[1]??''; 
-    $curso=''; 
-    
-    // As duas primeiras linhas permanecem iguais
-    if(stripos($t['nome_turma'],'mecatr')!==false) $curso='Mecatrônica';
-    elseif(stripos($t['nome_turma'],'desenvolvimento')!==false || stripos($t['nome_turma'],'ds')!==false) $curso='DS';
-    
-    // LINHA CORRIGIDA: Agora checa por 'linguagens' OU 'ling'
-    elseif(stripos($t['nome_turma'],'linguagens')!==false || stripos($t['nome_turma'],'ling')!==false) $curso='Linguagens';
-?>
+                        preg_match('/(\d+)°/',$t['nome_turma'],$m); $ano=$m[1]??''; 
+                        $curso=''; 
+                        
+                        // As duas primeiras linhas permanecem iguais
+                        if(stripos($t['nome_turma'],'mecatr')!==false) $curso='Mecatrônica';
+                        elseif(stripos($t['nome_turma'],'desenvolvimento')!==false || stripos($t['nome_turma'],'ds')!==false) $curso='DS';
+                        
+                        // LINHA CORRIGIDA: Agora checa por 'linguagens' OU 'ling'
+                        elseif(stripos($t['nome_turma'],'linguagens')!==false || stripos($t['nome_turma'],'ling')!==false) $curso='Linguagens';
+                    ?>
                         <tr data-ano="<?= $ano ?>" data-curso="<?= $curso ?>">
                             <td><?= htmlspecialchars($t['id_turma']) ?></td>
                             <td><?= htmlspecialchars($t['nome_turma']) ?></td>
@@ -464,8 +464,11 @@ $areas_professores = array_unique(array_map('trim', $areas_professores));
             <?php endif; ?>
         </div>
     </div>
-
-
+                        
+    <div id="atribuicao-section" style="display:none;" class="content-section">
+        <p style="text-align:center; padding: 20px;">Carregando grade...</p>
+    </div>
+    
     </main>
 
 <div id="editModal" class="modal-overlay" style="display:none;">
@@ -551,6 +554,7 @@ $areas_professores = array_unique(array_map('trim', $areas_professores));
     <script src="js/listagem_professores.js"></script> 
     <script src="js/dashboard.js"></script> 
     <script src="js/dashboard_filtros.js"></script> 
+    <script src="js/dashboard_atribuicao.js"></script>
     
 </body>
 </html>

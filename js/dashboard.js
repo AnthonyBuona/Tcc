@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Controla qual seção do dashboard é exibida
     // =========================
     window.mostrarSecao = function(secaoId) {
-        const secoes = ['dashboard-home', 'aprovacoes-section', 'professores-section', 'alunos-section', 'turmas-section'];
+        const secoes = ['dashboard-home', 'aprovacoes-section', 'professores-section', 'alunos-section', 'turmas-section','atribuicao-section'];
         secoes.forEach(id => {
             const elem = document.getElementById(id);
             if (elem) elem.style.display = (id === secaoId) ? 'block' : 'none';
