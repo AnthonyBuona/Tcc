@@ -109,7 +109,11 @@ $areas_professores = array_unique(array_map('trim', $areas_professores));
 
                 <li class="menu-title">Gerenciamento de Condições</li>
                 <ul class="submenu">
-                    <li><a href="">Restrição Porfessor</a></li>
+                    <li>
+                        <a href="#restricoes-professor" onclick="mostrarSecao('restricoes-professor-section'); carregarRestricoes(); return false;">
+                            Restrições de Professor
+                        </a>
+                    </li>
                     <li>
                         <a href="#carga-horaria" onclick="mostrarSecao('carga-horaria-section'); carregarCargaHoraria(); return false;">
                             Carga Horária
@@ -119,8 +123,16 @@ $areas_professores = array_unique(array_map('trim', $areas_professores));
 
                 <li class="menu-title">Gerenciamento de Disciplinas</li>
                 <ul class="submenu">
-                    <li><a href="">Cadastrar Disciplina</a></li>
-                    <li><a href="">Visualizar Disciplina</a></li>
+                    <li>
+                        <a href="#cadastrar-disciplina" onclick="mostrarSecao('cadastrar-disciplina-section'); carregarCadastroDisciplina(); return false;">
+                            Cadastrar Disciplina
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#visualizar-disciplina" onclick="mostrarSecao('visualizar-disciplina-section'); carregarDisciplinas(); return false;">
+                            Visualizar Disciplinas
+                        </a>
+                    </li>
                 </ul>
 
                 <li class="menu-title">Alocação de Horários</li>
@@ -475,7 +487,18 @@ $areas_professores = array_unique(array_map('trim', $areas_professores));
     
     <div id="carga-horaria-section" style="display:none;" class="content-section">
         <p style="text-align:center; padding: 20px;">Carregando carga horaria...</p>
-    </div>                   
+    </div>          
+
+    <div id="restricoes-professor-section" style="display:none;" class="content-section">
+        <p style="text-align:center; padding: 20px;">Carregando...</p>
+    </div>        
+
+    <div id="cadastrar-disciplina-section" style="display:none;" class="content-section">
+       <p style="text-align:center; padding: 20px;">Carregando...</p>
+    </div>
+    <div id="visualizar-disciplina-section" style="display:none;" class="content-section">
+        <p style="text-align:center; padding: 20px;">Carregando...</p>
+    </div>
 
     </main>
 
@@ -563,5 +586,11 @@ $areas_professores = array_unique(array_map('trim', $areas_professores));
     <script src="js/dashboard.js"></script> 
     <script src="js/dashboard_filtros.js"></script> 
     <script src="js/dashboard_atribuicao.js"></script>
+    <script src="js/dashboard_carga_horaria.js"></script>
+    <script src="js/dashboard_restricoes.js"></script>
+    <script src="js/restricoes.js"></script>
+    <script src="js/cadastro_disciplina_dashboard.js"></script>
+    <script src="js/disciplinas.js"></script>
+
 </body>
 </html>
