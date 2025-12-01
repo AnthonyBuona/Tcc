@@ -110,7 +110,11 @@ $areas_professores = array_unique(array_map('trim', $areas_professores));
                 <li class="menu-title">Gerenciamento de Condições</li>
                 <ul class="submenu">
                     <li><a href="">Restrição Porfessor</a></li>
-                    <li><a href="">Carga Horária</a></li>
+                    <li>
+                        <a href="#carga-horaria" onclick="mostrarSecao('carga-horaria-section'); carregarCargaHoraria(); return false;">
+                            Carga Horária
+                        </a>
+                    </li>
                 </ul>
 
                 <li class="menu-title">Gerenciamento de Disciplinas</li>
@@ -469,6 +473,10 @@ $areas_professores = array_unique(array_map('trim', $areas_professores));
         <p style="text-align:center; padding: 20px;">Carregando grade...</p>
     </div>
     
+    <div id="carga-horaria-section" style="display:none;" class="content-section">
+        <p style="text-align:center; padding: 20px;">Carregando carga horaria...</p>
+    </div>                   
+
     </main>
 
 <div id="editModal" class="modal-overlay" style="display:none;">
@@ -555,6 +563,5 @@ $areas_professores = array_unique(array_map('trim', $areas_professores));
     <script src="js/dashboard.js"></script> 
     <script src="js/dashboard_filtros.js"></script> 
     <script src="js/dashboard_atribuicao.js"></script>
-    
 </body>
 </html>

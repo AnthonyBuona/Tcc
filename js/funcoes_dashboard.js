@@ -247,3 +247,24 @@ function filtroTabelaProfessores() {
         }
     });
 }
+
+function carregarCargaHoraria() {
+    const container = document.getElementById('carga-horaria-section');
+    
+    container.innerHTML = '<div style="text-align:center; padding:50px; color:#48ab87;"><i class="fas fa-circle-notch fa-spin fa-3x"></i><p style="margin-top:15px; font-weight:600;">Calculando métricas...</p></div>';
+
+    fetch('includes/view_carga_horaria.php')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro na rede ao buscar dados.');
+            }
+            return response.text();
+        })
+        .then(html => {
+            container.innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            container.innerHTML = '<div class="message-error">Erro ao carregar o relatório de carga horária. Tente novamente.</div>';
+        });
+}
